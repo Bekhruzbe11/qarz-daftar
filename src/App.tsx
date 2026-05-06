@@ -41,6 +41,26 @@ export default function App() {
   
   const [isBalanceModalOpen, setIsBalanceModalOpen] = useState(false);
   const [balanceInput, setBalanceInput] = useState('');
+  
+  const [installPrompt, setInstallPrompt] = useState<any>(null);
+
+  useEffect(() => {
+    const handler = (e: any) => {
+      e.preventDefault();
+      setInstallPrompt(e);
+    };
+    window.addEventListener('beforeinstallprompt', handler);
+    return () => window.removeEventListener('beforeinstallprompt', handler);
+  }, []);
+
+  const handleInstall = async () => {
+    if (!installPrompt) return;
+    installPrompt.prompt();
+    const { outcome } = await installPrompt.userChoice;
+    if (outcome === 'accepted') {
+      setInstallPrompt(null);
+    }
+  };
 
   const [view, setView] = useState<View>('dashboard');
   const [selectedDebtId, setSelectedDebtId] = useState<string | null>(null);
@@ -201,6 +221,25 @@ export default function App() {
               className="space-y-6 md:space-y-8"
             >
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {installPrompt && (
+                  <div className="sm:col-span-2 lg:col-span-3 bg-gradient-to-r from-indigo-500 to-purple-600 p-4 rounded-3xl text-white flex items-center justify-between shadow-lg shadow-indigo-100">
+                    <div className="flex items-center gap-3">
+                      <div className="bg-white/20 p-2 rounded-xl">
+                        <Download size={20} />
+                      </div>
+                      <div>
+                        <p className="font-bold text-sm">Ilovani o'rnatish</p>
+                        <p className="text-[10px] text-indigo-100">Tezkor kirish uchun asosiy ekranga qo'shing</p>
+                      </div>
+                    </div>
+                    <button 
+                      onClick={handleInstall}
+                      className="bg-white text-indigo-600 px-4 py-2 rounded-xl text-xs font-bold hover:bg-gray-100 transition-colors active:scale-95"
+                    >
+                      O'rnatish
+                    </button>
+                  </div>
+                )}
                 <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm">
                   <p className="text-sm font-medium text-gray-500 mb-1">Berilgan (Haqqim)</p>
                   <div className="flex items-center justify-between">
